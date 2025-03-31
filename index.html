@@ -1,0 +1,1894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Delivery - User Panel</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Modern CSS -->
+    <style>
+        :root {
+            --primary: #6C63FF;
+            --primary-dark: #554dff;
+            --secondary: #FF6584;
+            --dark: #2D3748;
+            --light: #F7FAFC;
+            --gray: #A0AEC0;
+            --success: #48BB78;
+            --warning: #ED8936;
+            --danger: #F56565;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+        }
+        
+        /* Authentication Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            animation: modalFadeIn 0.3s;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .modal-header h2 {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 1.2rem;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        /* Payment method specific colors */
+        .payment-bkash {
+            background-color: #e2136e;
+            color: white;
+        }
+        
+        .payment-nagad {
+            background-color: #e30a13;
+            color: white;
+        }
+        
+        .payment-rocket {
+            background-color: #9c2baf;
+            color: white;
+        }
+        
+        .payment-wallet {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        /* App Layout */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .app-header {
+            background-color: white;
+            padding: 1rem;
+            box-shadow: var(--card-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo i {
+            margin-right: 0.5rem;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+        }
+        
+        /* Food Categories */
+        .categories {
+            display: flex;
+            overflow-x: auto;
+            gap: 1rem;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .category-btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+        
+        .category-btn.active, .category-btn:hover {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* Food Items Grid */
+        .food-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .food-card {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .food-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .food-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        
+        .food-info {
+            padding: 1.2rem;
+        }
+        
+        .food-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .food-price {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .food-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .food-category {
+            background-color: #e9e8ff;
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .order-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .order-btn:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.1);
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.75rem 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 90;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 0.8rem;
+            transition: var(--transition);
+        }
+        
+        .nav-item i {
+            font-size: 1.2rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .nav-item.active {
+            color: var(--primary);
+        }
+        
+        /* Wallet Section */
+        .wallet-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .wallet-title {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+        
+        .wallet-balance {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+        
+        .wallet-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .wallet-btn {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .wallet-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Orders Section */
+        .orders-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .order-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 1.2rem;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #edf2f7;
+        }
+        
+        .order-id {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .order-status {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .status-pending {
+            background-color: var(--warning);
+        }
+        
+        .status-completed {
+            background-color: var(--success);
+        }
+        
+        .order-details {
+            display: grid;
+            grid-template-columns: 60px 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .order-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        
+        .order-info h4 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .order-meta {
+            display: flex;
+            justify-content: space-between;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.75rem;
+            border-top: 1px solid #edf2f7;
+            font-size: 0.9rem;
+        }
+        
+        .order-total {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .order-payment {
+            color: var(--gray);
+        }
+        
+        /* Profile Section */
+        .profile-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 600;
+            margin-right: 1.5rem;
+        }
+        
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .profile-email {
+            color: var(--gray);
+        }
+        
+        .profile-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .detail-item {
+            margin-bottom: 1rem;
+        }
+        
+        .detail-label {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-value {
+            font-weight: 500;
+        }
+        
+        /* Profile Actions */
+        .profile-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .edit-profile-btn, .logout-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .edit-profile-btn {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .edit-profile-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .logout-btn {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .logout-btn:hover {
+            background-color: #e53e3e;
+        }
+        
+        /* Edit Profile Modal */
+        #edit-profile-modal .modal-content {
+            max-width: 500px;
+        }
+        
+        /* Hidden Sections */
+        .hidden {
+            display: none;
+        }
+        
+        /* Payment Details Sections */
+        .payment-details {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        
+        /* Password Toggle */
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 35px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        /* Login Modal */
+        #login-modal .modal-content {
+            max-width: 400px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .food-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            }
+            
+            .profile-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .wallet-actions {
+                flex-direction: column;
+            }
+            
+            .profile-actions {
+                flex-direction: column;
+            }
+            
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-avatar {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+            
+            .order-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .order-img {
+                width: 100%;
+                height: 150px;
+                margin-bottom: 1rem;
+            }
+            
+            .payment-methods-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .modal-content {
+                padding: 1.5rem;
+            }
+            
+            .food-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .order-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Login to Your Account</h2>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input type="email" id="login-email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" class="form-control" required>
+                    <i class="fas fa-eye password-toggle" id="toggle-login-password"></i>
+                </div>
+                <button type="button" id="login-submit" class="btn btn-primary btn-block">Login</button>
+            </form>
+            <div style="text-align: center; margin-top: 1rem;">
+                <p>Don't have an account? <a href="#" id="show-register" style="color: var(--primary);">Register</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Modal -->
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create Your Account</h2>
+            </div>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="register-name">Full Name</label>
+                    <input type="text" id="register-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email Address</label>
+                    <input type="email" id="register-email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-phone">Phone Number</label>
+                    <input type="tel" id="register-phone" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" class="form-control" required>
+                    <i class="fas fa-eye password-toggle" id="toggle-register-password"></i>
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm-password">Confirm Password</label>
+                    <input type="password" id="register-confirm-password" class="form-control" required>
+                    <i class="fas fa-eye password-toggle" id="toggle-register-confirm-password"></i>
+                </div>
+                <button type="button" id="register-submit" class="btn btn-primary btn-block">Register</button>
+            </form>
+            <div style="text-align: center; margin-top: 1rem;">
+                <p>Already have an account? <a href="#" id="show-login" style="color: var(--primary);">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Modal -->
+    <div id="order-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Order Details</h2>
+            </div>
+            <form id="order-form">
+                <div class="form-group">
+                    <label for="delivery-address">Delivery Address</label>
+                    <input type="text" id="delivery-address" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="order-phone">Phone Number</label>
+                    <input type="tel" id="order-phone" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; margin-top: 0.5rem;" class="payment-methods-grid">
+                        <label>
+                            <input type="radio" name="payment" value="wallet" checked style="display: none;">
+                            <div class="btn payment-wallet" style="justify-content: center; padding: 0.5rem;">
+                                <i class="fas fa-wallet"></i> Wallet
+                            </div>
+                        </label>
+                        <label>
+                            <input type="radio" name="payment" value="bkash" style="display: none;">
+                            <div class="btn payment-bkash" style="justify-content: center; padding: 0.5rem;">
+                                <i class="fas fa-mobile-alt"></i> bKash
+                            </div>
+                        </label>
+                        <label>
+                            <input type="radio" name="payment" value="nagad" style="display: none;">
+                            <div class="btn payment-nagad" style="justify-content: center; padding: 0.5rem;">
+                                <i class="fas fa-mobile-alt"></i> Nagad
+                            </div>
+                        </label>
+                        <label>
+                            <input type="radio" name="payment" value="rocket" style="display: none;">
+                            <div class="btn payment-rocket" style="justify-content: center; padding: 0.5rem;">
+                                <i class="fas fa-mobile-alt"></i> Rocket
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Wallet Payment Notice -->
+                <div id="wallet-notice" class="payment-details">
+                    <p style="color: var(--primary); font-weight: 500; text-align: center;">
+                        <i class="fas fa-info-circle"></i> Payment will be deducted from your wallet balance
+                    </p>
+                </div>
+                
+                <!-- Mobile Payment Details -->
+                <div id="mobile-payment-details" class="payment-details hidden">
+                    <div class="form-group">
+                        <label for="mobile-number">Mobile Number</label>
+                        <input type="text" id="mobile-number" class="form-control" placeholder="01XXXXXXXXX">
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-id">Transaction ID</label>
+                        <input type="text" id="transaction-id" class="form-control" placeholder="Enter transaction ID">
+                    </div>
+                </div>
+                
+                <div style="background-color: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>Subtotal</span>
+                        <span id="order-subtotal">0৳</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-weight: 600;">
+                        <span>Total</span>
+                        <span id="order-total">0৳</span>
+                    </div>
+                </div>
+                <button type="button" id="order-submit" class="btn btn-primary btn-block">Place Order</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Money Modal -->
+    <div id="add-money-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Money to Wallet</h2>
+            </div>
+            <form id="add-money-form">
+                <div class="form-group">
+                    <label for="amount">Amount (৳)</label>
+                    <input type="number" id="amount" class="form-control" required min="10">
+                </div>
+                <div class="form-group">
+                    <label for="payment-method">Payment Method</label>
+                    <select id="payment-method" class="form-control" required>
+                        <option value="">Select payment method</option>
+                        <option value="bkash">bKash</option>
+                        <option value="nagad">Nagad</option>
+                        <option value="rocket">Rocket</option>
+                        <option value="bank">Bank Transfer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="transaction-details">Transaction Details</label>
+                    <input type="text" id="transaction-details" class="form-control" required placeholder="Sender number, transaction ID, etc.">
+                </div>
+                <button type="button" id="add-money-submit" class="btn btn-primary btn-block">Submit Request</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="edit-profile-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Profile</h2>
+            </div>
+            <form id="edit-profile-form">
+                <div class="form-group">
+                    <label for="edit-name">Full Name</label>
+                    <input type="text" id="edit-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-email">Email Address</label>
+                    <input type="email" id="edit-email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-phone">Phone Number</label>
+                    <input type="tel" id="edit-phone" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-address">Delivery Address (Optional)</label>
+                    <textarea id="edit-address" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-password">New Password (Leave blank to keep current)</label>
+                    <input type="password" id="edit-password" class="form-control">
+                    <i class="fas fa-eye password-toggle" id="toggle-edit-password"></i>
+                </div>
+                <div class="form-group">
+                    <label for="edit-confirm-password">Confirm New Password</label>
+                    <input type="password" id="edit-confirm-password" class="form-control">
+                    <i class="fas fa-eye password-toggle" id="toggle-edit-confirm-password"></i>
+                </div>
+                <button type="button" id="edit-profile-submit" class="btn btn-primary btn-block">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order Success Modal -->
+    <div id="success-modal" class="modal">
+        <div class="modal-content" style="text-align: center;">
+            <div style="font-size: 3rem; color: var(--success); margin-bottom: 1rem;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="modal-header">
+                <h2>Order Placed Successfully!</h2>
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <p>Your order has been placed successfully.</p>
+                <p>Order ID: <strong id="order-id-display"></strong></p>
+                <div style="display: flex; align-items: center; justify-content: center; margin-top: 1rem;">
+                    <span class="status-dot status-pending"></span>
+                    <span>Pending</span>
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary btn-block close">Continue Shopping</button>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logout-modal" class="modal">
+        <div class="modal-content" style="text-align: center;">
+            <div style="font-size: 3rem; color: var(--warning); margin-bottom: 1rem;">
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
+            <div class="modal-header">
+                <h2>Confirm Logout</h2>
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <p>Are you sure you want to logout?</p>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button type="button" id="logout-confirm" class="btn btn-primary" style="flex: 1;">Yes, Logout</button>
+                <button type="button" class="btn btn-danger close" style="flex: 1;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Container -->
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-utensils"></i>
+                    <span>FoodExpress</span>
+                </div>
+                <div class="user-avatar" id="user-avatar">U</div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Home Section -->
+            <div id="home-section">
+                <h2 class="section-title">What would you like to order?</h2>
+                <div class="categories">
+                    <button class="category-btn active">All</button>
+                    <button class="category-btn">Fast Food</button>
+                    <button class="category-btn">Bangladeshi</button>
+                    <button class="category-btn">Chinese</button>
+                    <button class="category-btn">Dessert</button>
+                    <button class="category-btn">Healthy</button>
+                </div>
+                <div class="food-grid" id="food-items-container">
+                    <!-- Food items will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Search Section -->
+            <div id="search-section" class="hidden">
+                <div style="position: relative; margin-bottom: 2rem;">
+                    <input type="text" id="search-input" class="form-control" placeholder="Search food items..." style="padding-left: 3rem;">
+                    <i class="fas fa-search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--gray);"></i>
+                </div>
+                <div class="food-grid" id="search-results">
+                    <!-- Search results will appear here -->
+                </div>
+            </div>
+
+            <!-- Orders Section -->
+            <div id="orders-section" class="hidden">
+                <div class="wallet-card">
+                    <div class="wallet-title">Wallet Balance</div>
+                    <div class="wallet-balance" id="wallet-balance-display">0৳</div>
+                    <div class="wallet-actions">
+                        <button id="add-money-btn" class="wallet-btn">
+                            <i class="fas fa-plus"></i> Add Money
+                        </button>
+                    </div>
+                </div>
+                <h2 class="section-title">Your Orders</h2>
+                <div class="orders-list" id="orders-container">
+                    <!-- Orders will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Profile Section -->
+            <div id="profile-section" class="hidden">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar" id="profile-avatar">U</div>
+                        <div>
+                            <div class="profile-name" id="profile-name">User Name</div>
+                            <div class="profile-email" id="profile-email">user@example.com</div>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Email</div>
+                            <div class="detail-value" id="profile-email-value">user@example.com</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Phone</div>
+                            <div class="detail-value" id="profile-phone">+8801XXXXXXXXX</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Wallet Balance</div>
+                            <div class="detail-value" id="profile-wallet">0৳</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Total Orders</div>
+                            <div class="detail-value" id="profile-orders">0</div>
+                        </div>
+                    </div>
+                    <div class="profile-actions">
+                        <button id="edit-profile-btn" class="edit-profile-btn">
+                            <i class="fas fa-user-edit"></i> Edit Profile
+                        </button>
+                        <button id="logout-btn" class="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item active" data-section="home">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="#" class="nav-item" data-section="search">
+                <i class="fas fa-search"></i>
+                <span>Search</span>
+            </a>
+            <a href="#" class="nav-item" data-section="orders">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Orders</span>
+            </a>
+            <a href="#" class="nav-item" data-section="profile">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        // User data
+        let user = {
+            name: '',
+            email: '',
+            phone: '',
+            address: '',
+            password: '',
+            walletBalance: 0,
+            walletHistory: [],
+            orders: []
+        };
+
+        // Load food items from localStorage (shared with admin panel)
+        let foodItems = JSON.parse(localStorage.getItem('foodItems')) || [
+            { id: 1, name: 'Burger', price: 120, category: 'Fast Food', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80' },
+            { id: 2, name: 'Pizza', price: 350, category: 'Fast Food', image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80' },
+            { id: 3, name: 'Pasta', price: 180, category: 'Italian', image: 'https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80' }
+        ];
+
+        // Current order details
+        let currentOrder = {
+            foodItem: null,
+            total: 0
+        };
+
+        // DOM elements
+        const loginModal = document.getElementById('login-modal');
+        const registerModal = document.getElementById('register-modal');
+        const orderModal = document.getElementById('order-modal');
+        const addMoneyModal = document.getElementById('add-money-modal');
+        const editProfileModal = document.getElementById('edit-profile-modal');
+        const logoutModal = document.getElementById('logout-modal');
+        const successModal = document.getElementById('success-modal');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const orderForm = document.getElementById('order-form');
+        const addMoneyForm = document.getElementById('add-money-form');
+        const editProfileForm = document.getElementById('edit-profile-form');
+        const loginSubmit = document.getElementById('login-submit');
+        const registerSubmit = document.getElementById('register-submit');
+        const orderSubmit = document.getElementById('order-submit');
+        const addMoneySubmit = document.getElementById('add-money-submit');
+        const editProfileSubmit = document.getElementById('edit-profile-submit');
+        const logoutConfirm = document.getElementById('logout-confirm');
+        const addMoneyBtn = document.getElementById('add-money-btn');
+        const editProfileBtn = document.getElementById('edit-profile-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const showLogin = document.getElementById('show-login');
+        const showRegister = document.getElementById('show-register');
+        const walletBalanceDisplay = document.getElementById('wallet-balance-display');
+        const foodItemsContainer = document.getElementById('food-items-container');
+        const ordersContainer = document.getElementById('orders-container');
+        const profileDetails = document.getElementById('profile-details');
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+        const homeSection = document.getElementById('home-section');
+        const searchSection = document.getElementById('search-section');
+        const ordersSection = document.getElementById('orders-section');
+        const profileSection = document.getElementById('profile-section');
+        const walletNotice = document.getElementById('wallet-notice');
+        const mobilePaymentDetails = document.getElementById('mobile-payment-details');
+        const paymentMethods = document.querySelectorAll('input[name="payment"]');
+        const orderTotal = document.getElementById('order-total');
+        const orderSubtotal = document.getElementById('order-subtotal');
+        const orderIdDisplay = document.getElementById('order-id-display');
+        const userAvatar = document.getElementById('user-avatar');
+        const profileAvatar = document.getElementById('profile-avatar');
+        const profileName = document.getElementById('profile-name');
+        const profileEmail = document.getElementById('profile-email');
+        const profileEmailValue = document.getElementById('profile-email-value');
+        const profilePhone = document.getElementById('profile-phone');
+        const profileWallet = document.getElementById('profile-wallet');
+        const profileOrders = document.getElementById('profile-orders');
+        const navItems = document.querySelectorAll('.nav-item');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const toggleLoginPassword = document.getElementById('toggle-login-password');
+        const toggleRegisterPassword = document.getElementById('toggle-register-password');
+        const toggleRegisterConfirmPassword = document.getElementById('toggle-register-confirm-password');
+        const toggleEditPassword = document.getElementById('toggle-edit-password');
+        const toggleEditConfirmPassword = document.getElementById('toggle-edit-confirm-password');
+
+        // Show login modal on page load if not logged in
+        if (!localStorage.getItem('user')) {
+            loginModal.style.display = 'flex';
+        } else {
+            user = JSON.parse(localStorage.getItem('user'));
+            loadFoodItems();
+            updateWalletDisplay();
+            loadProfile();
+            updateUserAvatar();
+        }
+
+        // Listen for changes from admin panel
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'foodItems' || e.key === 'users' || e.key === 'orders') {
+                // Reload data when admin makes changes
+                const storedFoodItems = localStorage.getItem('foodItems');
+                if (storedFoodItems) {
+                    foodItems = JSON.parse(storedFoodItems);
+                }
+                
+                const storedUsers = localStorage.getItem('users');
+                if (storedUsers) {
+                    const users = JSON.parse(storedUsers);
+                    const currentUser = users.find(u => u.email === user.email);
+                    if (currentUser) {
+                        user = currentUser;
+                        localStorage.setItem('user', JSON.stringify(user));
+                    }
+                }
+                
+                loadFoodItems();
+                loadOrders();
+                loadProfile();
+                updateWalletDisplay();
+            }
+        });
+
+        // Event listeners
+        loginSubmit.addEventListener('click', handleLogin);
+        registerSubmit.addEventListener('click', handleRegister);
+        orderSubmit.addEventListener('click', handleOrderSubmit);
+        addMoneySubmit.addEventListener('click', handleAddMoneySubmit);
+        editProfileSubmit.addEventListener('click', handleEditProfileSubmit);
+        logoutConfirm.addEventListener('click', handleLogout);
+        addMoneyBtn.addEventListener('click', () => addMoneyModal.style.display = 'flex');
+        editProfileBtn.addEventListener('click', openEditProfileModal);
+        logoutBtn.addEventListener('click', () => logoutModal.style.display = 'flex');
+        showLogin.addEventListener('click', showLoginModal);
+        showRegister.addEventListener('click', showRegisterModal);
+        searchInput.addEventListener('input', handleSearch);
+
+        // Password toggle functionality
+        toggleLoginPassword.addEventListener('click', function() {
+            togglePasswordVisibility('login-password', this);
+        });
+        
+        toggleRegisterPassword.addEventListener('click', function() {
+            togglePasswordVisibility('register-password', this);
+        });
+        
+        toggleRegisterConfirmPassword.addEventListener('click', function() {
+            togglePasswordVisibility('register-confirm-password', this);
+        });
+        
+        toggleEditPassword.addEventListener('click', function() {
+            togglePasswordVisibility('edit-password', this);
+        });
+        
+        toggleEditConfirmPassword.addEventListener('click', function() {
+            togglePasswordVisibility('edit-confirm-password', this);
+        });
+
+        // Payment method selection
+        paymentMethods.forEach(method => {
+            method.addEventListener('change', function() {
+                updatePaymentDetailsVisibility(this.value);
+            });
+        });
+
+        // Close modal buttons
+        document.querySelectorAll('.close').forEach(button => {
+            button.addEventListener('click', function() {
+                this.closest('.modal').style.display = 'none';
+            });
+        });
+
+        // Close modals when clicking outside
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
+                }
+            });
+        });
+
+        // Navigation
+        navItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const section = this.getAttribute('data-section');
+                
+                // Update active nav item
+                navItems.forEach(navItem => navItem.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Hide all sections
+                homeSection.classList.add('hidden');
+                searchSection.classList.add('hidden');
+                ordersSection.classList.add('hidden');
+                profileSection.classList.add('hidden');
+                
+                // Show selected section
+                if (section === 'home') {
+                    homeSection.classList.remove('hidden');
+                    loadFoodItems();
+                } else if (section === 'search') {
+                    searchSection.classList.remove('hidden');
+                } else if (section === 'orders') {
+                    ordersSection.classList.remove('hidden');
+                    loadOrders();
+                } else if (section === 'profile') {
+                    profileSection.classList.remove('hidden');
+                    loadProfile();
+                }
+            });
+        });
+
+        // Category filter
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                filterFoodItems(this.textContent);
+            });
+        });
+
+        // Functions
+        function togglePasswordVisibility(inputId, iconElement) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                iconElement.classList.remove('fa-eye');
+                iconElement.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                iconElement.classList.remove('fa-eye-slash');
+                iconElement.classList.add('fa-eye');
+            }
+        }
+
+        function showLoginModal(e) {
+            e.preventDefault();
+            registerModal.style.display = 'none';
+            loginModal.style.display = 'flex';
+        }
+
+        function showRegisterModal(e) {
+            e.preventDefault();
+            loginModal.style.display = 'none';
+            registerModal.style.display = 'flex';
+        }
+
+        function handleLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Check against users data from admin panel
+            const storedUsers = localStorage.getItem('users');
+            let users = [];
+            if (storedUsers) {
+                users = JSON.parse(storedUsers);
+            }
+            
+            const foundUser = users.find(u => u.email === email && u.password === password);
+            
+            if (foundUser) {
+                user = foundUser;
+                localStorage.setItem('user', JSON.stringify(user));
+                loginModal.style.display = 'none';
+                loadFoodItems();
+                loadProfile();
+                updateUserAvatar();
+                return;
+            }
+            
+            alert('Invalid email or password');
+        }
+
+        function handleRegister() {
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const phone = document.getElementById('register-phone').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            
+            if (!name || !email || !phone || !password || !confirmPassword) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+            
+            // Check if email already exists in admin panel users
+            const storedUsers = localStorage.getItem('users');
+            let users = [];
+            if (storedUsers) {
+                users = JSON.parse(storedUsers);
+                if (users.find(u => u.email === email)) {
+                    alert('Email already registered');
+                    return;
+                }
+            }
+            
+            // Create new user
+            const newUser = {
+                id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
+                name,
+                email,
+                phone,
+                password,
+                wallet: 0,
+                orders: [],
+                joined: new Date().toISOString().split('T')[0]
+            };
+            
+            // Add to users array and save to localStorage
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // Set as current user
+            user = {
+                name,
+                email,
+                phone,
+                password,
+                walletBalance: 0,
+                walletHistory: [],
+                orders: []
+            };
+            
+            localStorage.setItem('user', JSON.stringify(user));
+            registerModal.style.display = 'none';
+            loadFoodItems();
+            loadProfile();
+            updateUserAvatar();
+        }
+
+        function updateUserAvatar() {
+            if (user.name) {
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                userAvatar.textContent = initials;
+                profileAvatar.textContent = initials;
+            }
+        }
+
+        function loadFoodItems() {
+            // Get food items from localStorage (shared with admin panel)
+            const storedFoodItems = localStorage.getItem('foodItems');
+            if (storedFoodItems) {
+                foodItems = JSON.parse(storedFoodItems);
+            }
+            
+            foodItemsContainer.innerHTML = '';
+            
+            if (foodItems.length === 0) {
+                foodItemsContainer.innerHTML = '<p style="text-align: center; color: var(--gray);">No food items available</p>';
+                return;
+            }
+            
+            foodItems.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'food-card';
+                
+                card.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}" class="food-img">
+                    <div class="food-info">
+                        <div class="food-name">${item.name}</div>
+                        <div class="food-price">${item.price}৳</div>
+                        <div class="food-meta">
+                            <span class="food-category">${item.category}</span>
+                            <button class="order-btn">
+                                <i class="fas fa-shopping-bag"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => {
+                    currentOrder.foodItem = item;
+                    currentOrder.total = item.price;
+                    orderTotal.textContent = `${item.price}৳`;
+                    orderSubtotal.textContent = `${item.price}৳`;
+                    document.getElementById('order-phone').value = user.phone;
+                    orderModal.style.display = 'flex';
+                });
+                
+                foodItemsContainer.appendChild(card);
+            });
+        }
+
+        function filterFoodItems(category) {
+            if (category === 'All') {
+                loadFoodItems();
+                return;
+            }
+            
+            const filteredItems = foodItems.filter(item => item.category === category);
+            foodItemsContainer.innerHTML = '';
+            
+            if (filteredItems.length === 0) {
+                foodItemsContainer.innerHTML = '<p style="text-align: center; color: var(--gray);">No items in this category</p>';
+                return;
+            }
+            
+            filteredItems.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'food-card';
+                
+                card.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}" class="food-img">
+                    <div class="food-info">
+                        <div class="food-name">${item.name}</div>
+                        <div class="food-price">${item.price}৳</div>
+                        <div class="food-meta">
+                            <span class="food-category">${item.category}</span>
+                            <button class="order-btn">
+                                <i class="fas fa-shopping-bag"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => {
+                    currentOrder.foodItem = item;
+                    currentOrder.total = item.price;
+                    orderTotal.textContent = `${item.price}৳`;
+                    orderSubtotal.textContent = `${item.price}৳`;
+                    document.getElementById('order-phone').value = user.phone;
+                    orderModal.style.display = 'flex';
+                });
+                
+                foodItemsContainer.appendChild(card);
+            });
+        }
+
+        function updatePaymentDetailsVisibility(paymentMethod) {
+            // Hide all payment details first
+            walletNotice.classList.add('hidden');
+            mobilePaymentDetails.classList.add('hidden');
+            
+            // Show relevant payment details
+            if (paymentMethod === 'wallet') {
+                walletNotice.classList.remove('hidden');
+            } else if (paymentMethod === 'bkash' || paymentMethod === 'nagad' || paymentMethod === 'rocket') {
+                mobilePaymentDetails.classList.remove('hidden');
+            }
+        }
+
+        function handleOrderSubmit() {
+            const deliveryAddress = document.getElementById('delivery-address').value;
+            const orderPhone = document.getElementById('order-phone').value;
+            const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+            
+            if (!deliveryAddress || !orderPhone) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            if (paymentMethod === 'wallet' && user.walletBalance < currentOrder.total) {
+                alert('Insufficient wallet balance');
+                return;
+            }
+            
+            if ((paymentMethod === 'bkash' || paymentMethod === 'nagad' || paymentMethod === 'rocket')) {
+                const mobileNumber = document.getElementById('mobile-number').value;
+                const transactionId = document.getElementById('transaction-id').value;
+                if (!mobileNumber || !transactionId) {
+                    alert('Please provide mobile payment details');
+                    return;
+                }
+            }
+            
+            const orderId = 'ORD-' + Date.now();
+            const order = {
+                id: orderId,
+                foodItem: currentOrder.foodItem,
+                deliveryAddress,
+                phone: orderPhone,
+                total: currentOrder.total,
+                paymentMethod,
+                status: 'pending',
+                date: new Date().toLocaleString()
+            };
+            
+            // Add payment details based on method
+            if (paymentMethod === 'wallet') {
+                user.walletBalance -= currentOrder.total;
+                updateWalletDisplay();
+            } else if (paymentMethod === 'bkash' || paymentMethod === 'nagad' || paymentMethod === 'rocket') {
+                order.mobileNumber = document.getElementById('mobile-number').value;
+                order.transactionId = document.getElementById('transaction-id').value;
+            }
+            
+            user.orders.unshift(order);
+            localStorage.setItem('user', JSON.stringify(user));
+            
+            // Also update orders in admin panel
+            const storedOrders = localStorage.getItem('orders') || '[]';
+            const orders = JSON.parse(storedOrders);
+            orders.push({
+                id: orders.length > 0 ? Math.max(...orders.map(o => o.id)) + 1 : 1,
+                customerId: user.id || 1,
+                items: [{
+                    foodId: currentOrder.foodItem.id,
+                    quantity: 1,
+                    price: currentOrder.foodItem.price
+                }],
+                total: currentOrder.total,
+                status: 'pending',
+                paymentMethod,
+                deliveryAddress,
+                phone: orderPhone,
+                date: new Date().toISOString().split('T')[0],
+                notes: ''
+            });
+            localStorage.setItem('orders', JSON.stringify(orders));
+            
+            orderModal.style.display = 'none';
+            orderForm.reset();
+            
+            // Show success modal
+            orderIdDisplay.textContent = orderId;
+            successModal.style.display = 'flex';
+        }
+
+        function handleAddMoneySubmit() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            const paymentMethod = document.getElementById('payment-method').value;
+            const transactionDetails = document.getElementById('transaction-details').value;
+            
+            if (!amount || !paymentMethod || !transactionDetails) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            if (amount < 10) {
+                alert('Minimum amount to add is 10৳');
+                return;
+            }
+            
+            const transaction = {
+                id: 'TRX-' + Date.now(),
+                amount,
+                paymentMethod,
+                transactionDetails,
+                date: new Date().toLocaleString(),
+                status: 'pending'
+            };
+            
+            user.walletHistory.unshift(transaction);
+            localStorage.setItem('user', JSON.stringify(user));
+            
+            addMoneyModal.style.display = 'none';
+            addMoneyForm.reset();
+            
+            alert('Your request to add money has been submitted. It will be added to your wallet after admin approval.');
+        }
+
+        function openEditProfileModal() {
+            document.getElementById('edit-name').value = user.name;
+            document.getElementById('edit-email').value = user.email;
+            document.getElementById('edit-phone').value = user.phone;
+            document.getElementById('edit-address').value = user.address || '';
+            document.getElementById('edit-password').value = '';
+            document.getElementById('edit-confirm-password').value = '';
+            editProfileModal.style.display = 'flex';
+        }
+
+        function handleEditProfileSubmit() {
+            const name = document.getElementById('edit-name').value;
+            const email = document.getElementById('edit-email').value;
+            const phone = document.getElementById('edit-phone').value;
+            const address = document.getElementById('edit-address').value;
+            const password = document.getElementById('edit-password').value;
+            const confirmPassword = document.getElementById('edit-confirm-password').value;
+            
+            if (!name || !email || !phone) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            if (password && password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            if (password && password.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+            
+            user.name = name;
+            user.email = email;
+            user.phone = phone;
+            user.address = address;
+            
+            // Update password only if provided
+            if (password) {
+                user.password = password;
+            }
+            
+            localStorage.setItem('user', JSON.stringify(user));
+            
+            // Also update in admin panel users
+            const storedUsers = localStorage.getItem('users') || '[]';
+            const users = JSON.parse(storedUsers);
+            const userIndex = users.findIndex(u => u.email === user.email);
+            if (userIndex !== -1) {
+                users[userIndex].name = name;
+                users[userIndex].phone = phone;
+                if (password) {
+                    users[userIndex].password = password;
+                }
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+            
+            editProfileModal.style.display = 'none';
+            loadProfile();
+            updateUserAvatar();
+            
+            alert('Profile updated successfully!');
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('user');
+            logoutModal.style.display = 'none';
+            loginModal.style.display = 'flex';
+            
+            // Reset user data
+            user = {
+                name: '',
+                email: '',
+                phone: '',
+                address: '',
+                password: '',
+                walletBalance: 0,
+                walletHistory: [],
+                orders: []
+            };
+            
+            // Reset UI
+            homeSection.classList.add('hidden');
+            searchSection.classList.add('hidden');
+            ordersSection.classList.add('hidden');
+            profileSection.classList.add('hidden');
+            homeSection.classList.remove('hidden');
+            
+            // Reset active nav item
+            navItems.forEach(navItem => navItem.classList.remove('active'));
+            document.querySelector('.nav-item[data-section="home"]').classList.add('active');
+        }
+
+        function updateWalletDisplay() {
+            walletBalanceDisplay.textContent = `${user.walletBalance}৳`;
+            profileWallet.textContent = `${user.walletBalance}৳`;
+        }
+
+        function loadOrders() {
+            ordersContainer.innerHTML = '';
+            
+            if (user.orders.length === 0) {
+                ordersContainer.innerHTML = '<p style="text-align: center; color: var(--gray);">No orders found</p>';
+                return;
+            }
+            
+            user.orders.forEach(order => {
+                const orderCard = document.createElement('div');
+                orderCard.className = 'order-card';
+                
+                const statusClass = order.status === 'pending' ? 'status-pending' : 'status-completed';
+                const statusText = order.status === 'pending' ? 'Pending' : 'Completed';
+                
+                // Payment method display text and icon
+                let paymentText = '';
+                let paymentIcon = 'fa-credit-card';
+                
+                switch(order.paymentMethod) {
+                    case 'wallet':
+                        paymentText = 'Wallet';
+                        paymentIcon = 'fa-wallet';
+                        break;
+                    case 'bkash':
+                        paymentText = 'bKash';
+                        paymentIcon = 'fa-mobile-alt';
+                        break;
+                    case 'nagad':
+                        paymentText = 'Nagad';
+                        paymentIcon = 'fa-mobile-alt';
+                        break;
+                    case 'rocket':
+                        paymentText = 'Rocket';
+                        paymentIcon = 'fa-mobile-alt';
+                        break;
+                }
+                
+                orderCard.innerHTML = `
+                    <div class="order-header">
+                        <div class="order-id">${order.id}</div>
+                        <div class="order-status">
+                            <span class="status-dot ${statusClass}"></span>
+                            ${statusText}
+                        </div>
+                    </div>
+                    <div class="order-details">
+                        <img src="${order.foodItem.image}" alt="${order.foodItem.name}" class="order-img">
+                        <div class="order-info">
+                            <h4>${order.foodItem.name}</h4>
+                            <div class="order-meta">
+                                <span>${order.foodItem.category}</span>
+                                <span>${order.foodItem.price}৳</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="order-footer">
+                        <div class="order-total">Total: ${order.total}৳</div>
+                        <div class="order-payment">
+                            <i class="fas ${paymentIcon}"></i> ${paymentText}
+                        </div>
+                    </div>
+                `;
+                
+                ordersContainer.appendChild(orderCard);
+            });
+            
+            // Add wallet history
+            if (user.walletHistory.length > 0) {
+                const walletTitle = document.createElement('h3');
+                walletTitle.className = 'section-title';
+                walletTitle.textContent = 'Wallet Transactions';
+                walletTitle.style.marginTop = '2rem';
+                ordersContainer.appendChild(walletTitle);
+                
+                user.walletHistory.forEach(transaction => {
+                    const trxCard = document.createElement('div');
+                    trxCard.className = 'order-card';
+                    
+                    const statusClass = transaction.status === 'pending' ? 'status-pending' : 'status-completed';
+                    const statusText = transaction.status === 'pending' ? 'Pending' : 'Completed';
+                    
+                    trxCard.innerHTML = `
+                        <div class="order-header">
+                            <div class="order-id">${transaction.id}</div>
+                            <div class="order-status">
+                                <span class="status-dot ${statusClass}"></span>
+                                ${statusText}
+                            </div>
+                        </div>
+                        <div style="padding: 1rem 0;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>Amount</span>
+                                <span style="font-weight: 600;">${transaction.amount}৳</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>Method</span>
+                                <span>${transaction.paymentMethod}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>Details</span>
+                                <span>${transaction.transactionDetails}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Date</span>
+                                <span>${transaction.date}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    ordersContainer.appendChild(trxCard);
+                });
+            }
+        }
+
+        function loadProfile() {
+            if (user.name) {
+                profileName.textContent = user.name;
+                profileEmail.textContent = user.email;
+                profileEmailValue.textContent = user.email;
+                profilePhone.textContent = user.phone;
+                profileWallet.textContent = `${user.walletBalance}৳`;
+                profileOrders.textContent = user.orders ? user.orders.length : 0;
+            }
+        }
+
+        function handleSearch() {
+            const query = searchInput.value.toLowerCase();
+            
+            if (query.length < 1) {
+                searchResults.innerHTML = '';
+                return;
+            }
+            
+            const results = foodItems.filter(item => 
+                item.name.toLowerCase().includes(query) || 
+                item.category.toLowerCase().includes(query)
+            );
+            
+            searchResults.innerHTML = '';
+            
+            if (results.length === 0) {
+                searchResults.innerHTML = '<p style="text-align: center; color: var(--gray);">No results found</p>';
+                return;
+            }
+            
+            results.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'food-card';
+                
+                card.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}" class="food-img">
+                    <div class="food-info">
+                        <div class="food-name">${item.name}</div>
+                        <div class="food-price">${item.price}৳</div>
+                        <div class="food-meta">
+                            <span class="food-category">${item.category}</span>
+                            <button class="order-btn">
+                                <i class="fas fa-shopping-bag"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => {
+                    currentOrder.foodItem = item;
+                    currentOrder.total = item.price;
+                    orderTotal.textContent = `${item.price}৳`;
+                    orderSubtotal.textContent = `${item.price}৳`;
+                    document.getElementById('order-phone').value = user.phone;
+                    orderModal.style.display = 'flex';
+                });
+                
+                searchResults.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
